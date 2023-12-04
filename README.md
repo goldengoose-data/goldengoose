@@ -4,14 +4,20 @@ Welcome! This is a financial assets API based on the Intel DAOS filesystem. It i
 
 Here's how it works. A goldengoose object is defined at the start of your program, this object contains all past & present ohcl datapoints for all supported assets. An epoch is defined by the following key/pair format: epoch/data. The epoch key is the timestamp of the desired epoch, such as [2022-10-01T10:00]. The time zone is Eastern Standard Time and all datapoints are interpolated, if not present, to gaurantee data availability. This means that if there was a gap in the available data (due to errors or downtime), the last recorded data point is forward copied across all subsequent epochs till the next available data point.
 
+## What's in this Repo
+
+This repo represents that public python API functions that access the data. This python library gets installed along side the required daos libraries when installing the goldengoose debian package as described below.
+
 ## Installation
 
 Unlike REST & Websocket API's the goldengoose API does require a client side application to be running. This may be a deal breaker for some, but it is part of the fundamental design of the DAOS filesystem and enables end users to achieve high speed access to their data. Luckily we have simplified this into a single debian package:
 
-To install please add our debian repo (requires root):
-
 > **_NOTE:_** Only Debian 12 is supported at the moment.
 
+> **_NOTE:_** Known Issue: The host must have direct access to the internet. No NAT is possible due to the design of ucx and libfabric. Clients must operate in a DMZ network. For instructions on how to set this up in AWS or at home, please send an email to support@goldengoose.tech.
+
+
+To install please add our debian repo (requires root):
 ```bash
 wget https://ezthinking.org:9999/debian/Release.gpg -O /usr/share/keyrings/goldengoose.gpg
 # echo 'deb [signed-by=/usr/share/keyrings/goldengoose.gpg] https://ezthinking.org:9999/debian /' > /etc/apt/sources.list.d/goldengoose.list
@@ -69,9 +75,9 @@ import goldengoose
 import datetime
 
 asset_data = goldengoose.assets.get('ADBE')
-epoch = goldengoose.get_current_epoch()
 
 while True:
+    epoch = goldengoose.get_next_epoch()
     if epoch not in asset_data:
         goldengoose.wait_till_next_epoch()
     print (asset_data[epoch])
@@ -95,4 +101,33 @@ asset_data = goldengoose.assets.get('ADBE')
 start = '2020-01-02T00:00:00Z'
 stop = '2023-11-01T00:00:00Z' # May be ommited to download data till last entry
 local_json = asset_data.get_range(start, stop) # Careful, may take several minutes depending on your connection and size of date range.
+```
+
+### Find x percent gainers/losers since yesterday
+```python
+import goldengoose
+import datetime
+
+today = datetime.now().date()
+yesterday = today - timedelta(days=1)
+
+assets = goldengoose.assets.list()
+for asset in assets:
+
+    asset_data = goldengoose.assets.get(asset)
+    yesterdays_close = yesterday.strftime("%Y-%m-%d") + "T21:00:00Z"
+    datapoint = asset_data[yesterdays_close]
+    close_price = datapoint['close_price']
+
+    todays_open = today.strftime("%Y-%m-%d") + "T13:30:00Z"
+    if todays_open not in asset_data:
+        print ("Todays open has not been written yet")
+        continue
+
+    datapoint = asset_data[todays_open]
+    open_price = datapont['open_price']
+
+    percent_change = ((open_price - close_price) / close_price) * 100
+    if percent_change > 1.75:
+        print ("Increase found: ", asset)
 ```
