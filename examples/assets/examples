@@ -9,8 +9,12 @@ stock_data = goldengoose.stocks.get('ADBE')
 start_date = str(stock_data['start'], encoding='ascii')
 start_date = datetime.datetime.strptime(start_date, '%Y-%m-%dT%H:%M:%SZ')
 
+# Resolution
+resolution = '5min'
+
 while start_date < datetime.datetime.now():
     key = start_date.strftime("%Y-%m-%dT%H:%M:%SZ")
-    data = stock_data[key]
-    print (key, data)
+    if key in stock_data:
+        data = stock_data[key]
+        print (key, data)
     start_date += datetime.timedelta(minutes=5)
