@@ -6,7 +6,7 @@ Here's how it works. A goldengoose object is defined at the start of your progra
 
 ## What's in this Repo
 
-This repo represents that public python API functions that access the data. This python library gets installed along side the required daos libraries when installing the goldengoose debian package as described below.
+This repo represents that public python API function that accesses that data. The goldengoose python library gets installed along side the required daos libraries when installing the goldengoose debian package as described below.
 
 ## Installation
 
