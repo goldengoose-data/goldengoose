@@ -10,21 +10,21 @@ This repo represents that public python API function that accesses that data. Th
 
 ## Installation
 
-Unlike REST & Websocket API's the goldengoose API does require a client side application to be running. This may be a deal breaker for some, but it is part of the fundamental design of the DAOS filesystem and enables end users to achieve high speed access to their data. Luckily we have simplified this into a single debian package:
+Unlike REST & Websocket API's the goldengoose API does require a client side application to be running. This may be a deal breaker for some, but it is part of the fundamental design of the DAOS filesystem and enables end users to achieve high speed access to their data. Luckily we have simplified this into a easy to install debian package:
 
 > **_NOTE:_** Only Debian 12 is supported at the moment.
 
-> **_NOTE:_** Known Issue: The host must have direct access to the internet. No NAT is possible due to the design of ucx and libfabric. Clients must operate in a DMZ network. For instructions on how to set this up in AWS or at home, please send an email to support@goldengoose.tech.
+To install please run our installer (requires root):
 
-
-To install please add our debian repo (requires root):
 ```bash
-wget https://ezthinking.org:9999/debian/Release.gpg -O /usr/share/keyrings/goldengoose.gpg
-# echo 'deb [signed-by=/usr/share/keyrings/goldengoose.gpg] https://ezthinking.org:9999/debian /' > /etc/apt/sources.list.d/goldengoose.list
-# Signing not available yet
-echo 'deb [trusted=yes] https://ezthinking.org:9999/debian /' > /etc/apt/sources.list.d/goldengoose.list
-apt update
-apt install goldengoose
+echo "deb [trusted=yes] https://ezthinking.org:9999/Debian_12/ ./" > /etc/apt/sources.list.d/goldengoose.list
+apt update --yes
+apt install --yes goldengoose
+```
+
+or use this single command:
+```bash
+su -c "curl https://goldengoose.tech/goldengoose.debian12.run -o goldengoose.debian12.sh && chmod +x goldengoose.debian12.sh && ./goldengoose.debian12.sh"
 ```
 
 ### Setting the API Key
